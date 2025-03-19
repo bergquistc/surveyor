@@ -1,0 +1,20 @@
+Survey Section Data
+
+1. Name
+2. Survey Type (Market Survey / Market Tour)
+
+4. State
+5. City
+
+7. Creator
+8. Collaborators (array of users)
+
+9. Client
+
+10. Project Type (Relocation / new location / build to suit)
+
+11. Industrial vs Office Template
+
+12. Stock photo
+
+13. Date
