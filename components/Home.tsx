@@ -46,10 +46,6 @@ export default function Home({ survey }: { survey: TSurvey }) {
 						{survey.templateType} - {survey.projectType}
 					</h1>
 				</div>
-
-				<div className={"flex gap-6 items-center rounded-sm p-6 relative "}>
-					<img src={"/map.png"} width={500} height={500} />
-				</div>
 			</div>
 		</React.Fragment>
 	)

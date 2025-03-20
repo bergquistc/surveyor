@@ -40,4 +40,5 @@ export type TProperty = {
 	Location_Notes: string
 	Building_Detail_Notes: string
 	Spaces_Notes: string
+	WKT: string | null
 }

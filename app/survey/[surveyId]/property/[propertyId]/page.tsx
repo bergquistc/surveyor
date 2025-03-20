@@ -113,8 +113,8 @@ export default async function Page({ params }: { params: { propertyId: Promise<s
 								)}
 								{renderLabelValueRow("Building Class", data["Building_Class"])}
 								{renderLabelValueRow("Building Status", data["Building_Status"])}
-								{renderLabelValueRow("Owner", data["Leasing_Company_Name"])}
-								{renderLabelValueRow("Contact", data["Leasing_Company_Contact"])}
+								{renderLabelValueRow("Owner", data["Owner"])}
+								{renderLabelValueRow("Contact", data["Contact"])}
 								{renderLabelValueRow("County", data["County_Name"])}
 								{renderLabelValueRow("Parking", data["Parking_Ratio"])}
 								{renderLabelValueRow("Built", data["Year_Built"])}
@@ -134,7 +134,7 @@ export default async function Page({ params }: { params: { propertyId: Promise<s
 
 							<div className="flex w-full">
 								<div className="w-1/2">
-									<PropertyMap />
+									<PropertyMap property={data} />
 								</div>
 
 								<div className="flex flex-col  w-1/2 bg-cresa-midnight p-4">
