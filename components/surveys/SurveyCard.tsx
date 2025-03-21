@@ -16,10 +16,7 @@ function SurveyCard({ survey }: { survey: TSurvey }) {
 
 	// Effects
 	const handleSurveyClick = useCallback(() => {
-		const params = new URLSearchParams(searchParams)
-		params.set("date", survey.date.toString())
-
-		router.push(`/survey/${survey.surveyId}?${params.toString()}`)
+		router.push(`/survey/${survey.surveyId}`)
 	}, [survey.surveyId])
 
 	// Functions

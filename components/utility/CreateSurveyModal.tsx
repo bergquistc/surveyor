@@ -31,15 +31,18 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 
 	// Effects
 	const canSubmit = useMemo(() => {
-		return newSurvey.surveyName.length && newSurvey.projectType.length && newSurvey.templateType.length
+		return (
+			newSurvey.surveyName.length &&
+			newSurvey.surveyType.length &&
+			newSurvey.projectType.length &&
+			newSurvey.templateType.length
+		)
 	}, [newSurvey])
 
 	const handleSubmit = useCallback(async () => {
-		console.log(canSubmit, newSurvey)
 		if (!canSubmit) {
 			return
 		}
-		console.log("DSFOH")
 		setIsFetching(true)
 		const response = await fetch(`${variables.DOMAIN}/survey`, {
 			method: "POST",
@@ -63,14 +66,7 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 		if (response.ok) {
 			const data = await response.json()
 			const item = data.Item
-			startTransition(() => {
-				// Refresh the current route and fetch new data from the server without
-				// losing client-side browser or React state.
-				const params = new URLSearchParams(searchParams)
-				params.set("date", item.date.toString())
 
-				router.push(`/survey/${item.surveyId}?${params.toString()}`)
-			})
 			setIsFetching(false)
 			onSubmit(item)
 			onClose()
@@ -182,10 +178,6 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 					updatePropertyField("surveyName", e.target.value)
 				)}
 
-				{renderInputField("Survey Type", true, newSurvey?.surveyType, (e) =>
-					updatePropertyField("surveyType", e.target.value)
-				)}
-
 				{renderInputField("Client", true, newSurvey?.client, (e) =>
 					updatePropertyField("client", e.target.value)
 				)}
@@ -197,6 +189,13 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 	const surveyType = (
 		<React.Fragment>
 			<Grouping title={"Basic Information"}>
+				{renderDropdown(
+					"Survey Type",
+					true,
+					newSurvey?.surveyType,
+					(e) => updatePropertyField("surveyType", e.target.value),
+					["Markey Survey", "Market Tour"]
+				)}
 				{renderDropdown(
 					"Project Type",
 					true,

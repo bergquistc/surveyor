@@ -19,7 +19,7 @@ function PropertyCard({ property }: { property: TProperty }) {
 
 	const handlePropertyClick = useCallback(() => {
 		router.push(`/survey/${params.surveyId}/property/${property?.propertyId}?${searchParams.toString()}`)
-	}, [property?.propertyId, params, router, searchParams])
+	}, [property, params, router, searchParams])
 
 	// Components
 	const renderStatistic = (label: string, value: string) => {
@@ -41,12 +41,21 @@ function PropertyCard({ property }: { property: TProperty }) {
 					<div className="flex gap-6 flex-grow">
 						<div className="relative min-w-[200px]">
 							{/* Picture */}
-							<img
-								src={"/office_1.jpg"}
-								width={200}
-								height={100}
-								className="object-cover rounded-sm pointer-events-none"
-							/>
+							{property?.s3PresignedUrl ? (
+								<img
+									src={property.s3PresignedUrl}
+									width={200}
+									height={100}
+									className="object-cover rounded-sm pointer-events-none h-[140px]"
+								/>
+							) : (
+								<img
+									src={`/office_1.jpg`}
+									width={200}
+									height={100}
+									className="object-cover rounded-sm pointer-events-none h-[140px]"
+								/>
+							)}
 						</div>
 
 						{/* Details */}

@@ -2,18 +2,17 @@
 
 import React, { useState, useCallback } from "react"
 import { numberWithCommas } from "@/utils/formatters"
-import { useRouter, useSearchParams, useParams } from "next/navigation"
-import { TProperty } from "@/types"
+import { useRouter } from "next/navigation"
+import { TProperty, TSurvey } from "@/types"
+import { createImage, deletePropertyImage } from "@/app/actions/s3"
 import EditPropertyModal from "../utility/EditPropertyModal"
+import variables from "@/variables"
 
-export default function PropertyMainDetails({ property }: { property: TProperty }) {
+export default function PropertyMainDetails({ survey, property }: { survey: TSurvey; property: TProperty }) {
 	const router = useRouter()
-	const searchParams = useSearchParams()
-	const params = useParams<{ surveyId: string }>()
 
 	// State
 	const [isEditPropertyModalOpen, setIsEditPropertyModalOpen] = useState(false)
-
 	const renderStatistic = (label: string, value: string) => {
 		return (
 			<React.Fragment>
@@ -25,9 +24,43 @@ export default function PropertyMainDetails({ property }: { property: TProperty 
 		)
 	}
 
+	const handleDeleteProperty = useCallback(async () => {
+		if (!property) {
+			return
+		}
+
+		deletePropertyImage(property?.propertyId)
+		const response = await fetch(`${variables.DOMAIN}/property`, {
+			method: "DELETE",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				propertyId: property?.propertyId
+			})
+		})
+
+		if (response.ok) {
+			handleBack()
+		}
+	}, [property])
+
 	const handleBack = useCallback(() => {
-		router.push(`/survey/${params.surveyId}?${searchParams.toString()}`)
-	}, [params, searchParams, router])
+		router.push(`/survey/${survey.surveyId}`)
+	}, [survey, router])
+
+	interface FileSelectedEvent extends React.ChangeEvent<HTMLInputElement> {}
+
+	const fileSelected = async (event: FileSelectedEvent) => {
+		const file = event.target.files?.[0]
+		if (!file || !property) {
+			return
+		}
+
+		await createImage(file, property.propertyId)
+
+		router.refresh()
+	}
 
 	const backButton = (
 		<React.Fragment>
@@ -56,12 +89,25 @@ export default function PropertyMainDetails({ property }: { property: TProperty 
 			</div>
 		</React.Fragment>
 	)
+	const deletePropertyButton = (
+		<React.Fragment>
+			{/* Edit Property Button */}
+			<div className="">
+				<button
+					className="flex items-center gap-2 p-2 text-sm text-white/90 bg-red-600 cursor-pointer"
+					onClick={handleDeleteProperty}
+				>
+					Delete Property
+				</button>
+			</div>
+		</React.Fragment>
+	)
 	const editPropertyButton = (
 		<React.Fragment>
 			{/* Edit Property Button */}
-			<div className="absolute top-12 right-12">
+			<div className="">
 				<button
-					className="flex items-center gap-2 p-2 bg-cresa-goldenrod cursor-pointer hover:bg-cresa-orange transition-colors duration-300"
+					className="flex items-center gap-2 p-2 text-sm bg-cresa-goldenrod cursor-pointer"
 					onClick={() => setIsEditPropertyModalOpen(true)}
 				>
 					Edit Property
@@ -77,10 +123,33 @@ export default function PropertyMainDetails({ property }: { property: TProperty 
 			</div>
 		</React.Fragment>
 	)
+	const editPropertyImageButton = (
+		<React.Fragment>
+			{/* Edit Property Button */}
+			<div className="flex items-center gap-2 p-2 text-sm bg-cresa-goldenrod cursor-pointer">
+				<label htmlFor={"file-upload"} className="cursor-pointer">
+					Change Image
+				</label>
+				<input
+					id={"file-upload"}
+					onChange={fileSelected}
+					type="file"
+					accept="image/*"
+					style={{ display: "none" }}
+				/>
+			</div>
+		</React.Fragment>
+	)
+
 	return (
 		<React.Fragment>
 			{backButton}
-			{editPropertyButton}
+
+			<div className="absolute flex items-center gap-4 top-6 right-6">
+				{editPropertyButton}
+				{editPropertyImageButton}
+				{deletePropertyButton}
+			</div>
 
 			<div className="flex flex-col items-center justify-center w-full gap-8">
 				<div className="flex flex-col">

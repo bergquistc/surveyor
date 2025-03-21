@@ -15,6 +15,11 @@ const nextConfig: NextConfig = {
 
 		// Important: return the modified config
 		return config
+	},
+	experimental: {
+		serverActions: {
+			bodySizeLimit: "5mb"
+		}
 	}
 }
 

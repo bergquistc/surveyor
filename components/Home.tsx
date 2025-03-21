@@ -1,17 +1,19 @@
 "use client"
 
-import { TSurvey } from "@/types"
+import { deletePropertyImage } from "@/app/actions/s3"
+import { TProperty, TSurvey } from "@/types"
 import variables from "@/variables"
 import { useRouter } from "next/navigation"
 import React, { useCallback } from "react"
 
-export default function Home({ survey }: { survey: TSurvey }) {
+export default function Home({ survey, properties }: { survey: TSurvey; properties: TProperty[] }) {
 	const router = useRouter()
 
 	// Effects
 	const handleBack = useCallback(() => {
 		router.push(`/`)
 	}, [router])
+
 	const handleDeleteSurvey = useCallback(async () => {
 		const response = await fetch(`${variables.DOMAIN}/survey`, {
 			method: "DELETE",
@@ -19,15 +21,18 @@ export default function Home({ survey }: { survey: TSurvey }) {
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
-				surveyId: survey.surveyId,
-				date: survey.date
+				surveyId: survey.surveyId
 			})
 		})
 
 		if (response.ok && response.status === 200) {
+			for (const _node of properties) {
+				const propertyId = _node.propertyId
+				deletePropertyImage(propertyId)
+			}
 			handleBack()
 		}
-	}, [survey])
+	}, [survey, properties])
 
 	// Components
 
@@ -45,10 +50,6 @@ export default function Home({ survey }: { survey: TSurvey }) {
 					<h1 className={"px-6 text-2xl text-cresa-goldenrod"}>
 						{survey.templateType} - {survey.projectType}
 					</h1>
-				</div>
-
-				<div className={"flex gap-6 items-center rounded-sm p-6 relative "}>
-					<img src={"/map.png"} width={500} height={500} />
 				</div>
 			</div>
 		</React.Fragment>

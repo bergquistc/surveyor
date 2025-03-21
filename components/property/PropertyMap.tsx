@@ -1,64 +1,94 @@
 "use client"
 
-import React, { useEffect, useRef } from "react"
+import useMapControl from "@/hooks/useMapControl"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import mapboxgl from "mapbox-gl"
+import MapboxDraw from "@mapbox/mapbox-gl-draw"
+import { stringify, parse } from "wkt"
+import { TProperty } from "@/types"
+import variables from "@/variables"
 
-const lngLat: [number, number] = [-111.985981, 33.397052]
-function PropertyMap() {
+function PropertyMap({ property }: { property: TProperty }) {
+	let coords: [number, number] = [-98.5795, 39.8283]
+	let zoom: number = 3
+
+	if (property?.WKT) {
+		const geojson = parse(property.WKT)
+		if (geojson?.coordinates.length === 2) {
+			coords = geojson.coordinates as [number, number]
+		}
+		zoom = 13
+	}
+
 	// Refs
-	const mapRef = useRef<mapboxgl.Map | null>(null)
 	const mapContainerRef = useRef<HTMLDivElement | null>(null)
+
 	// State
+	const map = useMapControl({ container: mapContainerRef, initConfig: { center: coords, zoom: zoom } })
 
 	// Effects
-	useEffect(() => {
-		mapboxgl.accessToken =
-			"pk.eyJ1IjoiY29ubm9yYmVyZ3F1aXN0IiwiYSI6ImNtODNqdjRvdzFxbHEybHB5dmtueWVlYXcifQ.r1ghr9tlg55rhsmbR_JHew"
-		const map = (mapRef.current = new mapboxgl.Map({
-			container: mapContainerRef.current as HTMLElement,
-			center: lngLat,
-			zoom: 12
-		}))
+	const handleDraw = useCallback(
+		(draw: MapboxDraw, marker: mapboxgl.Marker) => {
+			const data = draw.getAll()
 
-		map.on("style.load", () => {
-			map.addSource("propertyPoint", {
-				type: "geojson",
-				data: {
-					type: "Feature",
-					geometry: {
-						type: "Point",
-						coordinates: lngLat
+			if (data.features.length > 0) {
+				const point = data.features[0]
+				const coords = point.geometry.coordinates
+
+				if (map) {
+					marker.setLngLat(coords).addTo(map)
+				}
+
+				const wkt = stringify(point.geometry)
+				fetch(`${variables.DOMAIN}/property`, {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json"
 					},
-					properties: {
-						title: "Mapbox DC",
-						"marker-symbol": "default_marker"
-					}
+					body: JSON.stringify({ propertyId: property.propertyId, updateKey: "WKT", updateValue: wkt })
+				})
+
+				if (marker) {
+					marker.setLngLat(coords)
 				}
-			})
+				draw.deleteAll()
+			}
+		},
+		[property, map]
+	)
 
-			map.addLayer({
-				id: "propertyPointLayer",
-				source: "propertyPoint",
-				type: "circle",
-				paint: {
-					"circle-radius": 10,
-					"circle-color": "#ffb600",
-					"circle-stroke-width": 2,
-					"circle-stroke-color": "#ffffff"
-				}
-			})
+	useEffect(() => {
+		if (!map) {
+			return
+		}
 
-			// add markers to map
+		// parse the wkt
 
-			new mapboxgl.Marker().setLngLat(lngLat).addTo(map) // Replace this line with code from step 7-2
+		// add marker to map
+		const _marker = new mapboxgl.Marker()
+		if (property?.WKT) {
+			_marker.setLngLat(coords).addTo(map)
+		}
+		// const _marker = new mapboxgl.Marker().setLngLat(coords).addTo(map)
+
+		// Init our draw
+		const _draw = new MapboxDraw({
+			displayControlsDefault: false,
+			// Select which mapbox-gl-draw control buttons to add to the map.
+			controls: {
+				point: true
+			}
+			// Set mapbox-gl-draw to draw by default.
+			// The user does not have to click the polygon control button first.
+			// defaultMode: "draw_point"
 		})
 
-		return () => {
-			if (mapRef.current) {
-				mapRef.current.remove()
-			}
-		}
-	}, [])
+		// Add draw to the map
+		map.addControl(_draw, "top-right")
+
+		// Attach handler
+		map.on("draw.create", (e) => handleDraw(_draw, _marker))
+	}, [map])
 
 	// Functions
 

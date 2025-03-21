@@ -151,7 +151,6 @@ function EditPropertyModal({
 			</div>
 		</React.Fragment>
 	)
-
 	const propertyInformation = (
 		<React.Fragment>
 			<Grouping title={"Basic Information"}>

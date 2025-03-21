@@ -71,7 +71,10 @@ export default function Properties({ survey, properties }: { survey: TSurvey; pr
 				Star_Rating: "",
 				Location_Notes: "",
 				Building_Detail_Notes: "",
-				Spaces_Notes: ""
+				Spaces_Notes: "",
+				WKT: null,
+				propertyImageKey: null,
+				s3PresignedUrl: null
 			}
 			const keys = Object.keys(property as object)
 			for (const key of keys) {

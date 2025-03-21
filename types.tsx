@@ -40,4 +40,7 @@ export type TProperty = {
 	Location_Notes: string
 	Building_Detail_Notes: string
 	Spaces_Notes: string
+	WKT: string | null
+	propertyImageKey: string | null
+	s3PresignedUrl: string | null
 }
