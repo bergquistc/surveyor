@@ -14,6 +14,7 @@ function EditPropertyModal({
 	onSubmit: (property: TProperty) => void
 	onClose: () => void
 }) {
+	console.log(property)
 	const router = useRouter()
 	// Refs
 

@@ -17,14 +17,21 @@ function PropertyMap({ property }: { property: TProperty }) {
 		if (geojson?.coordinates.length === 2) {
 			coords = geojson.coordinates as [number, number]
 		}
+<<<<<<< HEAD
 		zoom = 13
+=======
+>>>>>>> be8f2acd0e8646096207638b9e69fcfb8f74de97
 	}
 
 	// Refs
 	const mapContainerRef = useRef<HTMLDivElement | null>(null)
 
 	// State
+<<<<<<< HEAD
 	const map = useMapControl({ container: mapContainerRef, initConfig: { center: coords, zoom: zoom } })
+=======
+	const map = useMapControl({ container: mapContainerRef, initConfig: { center: coords } })
+>>>>>>> be8f2acd0e8646096207638b9e69fcfb8f74de97
 
 	// Effects
 	const handleDraw = useCallback(
@@ -35,10 +42,13 @@ function PropertyMap({ property }: { property: TProperty }) {
 				const point = data.features[0]
 				const coords = point.geometry.coordinates
 
+<<<<<<< HEAD
 				if (map) {
 					marker.setLngLat(coords).addTo(map)
 				}
 
+=======
+>>>>>>> be8f2acd0e8646096207638b9e69fcfb8f74de97
 				const wkt = stringify(point.geometry)
 				fetch(`${variables.DOMAIN}/property`, {
 					method: "PATCH",
@@ -54,7 +64,11 @@ function PropertyMap({ property }: { property: TProperty }) {
 				draw.deleteAll()
 			}
 		},
+<<<<<<< HEAD
 		[property, map]
+=======
+		[property]
+>>>>>>> be8f2acd0e8646096207638b9e69fcfb8f74de97
 	)
 
 	useEffect(() => {
@@ -63,6 +77,7 @@ function PropertyMap({ property }: { property: TProperty }) {
 		}
 
 		// parse the wkt
+<<<<<<< HEAD
 
 		// add marker to map
 		const _marker = new mapboxgl.Marker()
@@ -71,6 +86,12 @@ function PropertyMap({ property }: { property: TProperty }) {
 		}
 		// const _marker = new mapboxgl.Marker().setLngLat(coords).addTo(map)
 
+=======
+
+		// add marker to map
+		const _marker = new mapboxgl.Marker().setLngLat(coords).addTo(map)
+
+>>>>>>> be8f2acd0e8646096207638b9e69fcfb8f74de97
 		// Init our draw
 		const _draw = new MapboxDraw({
 			displayControlsDefault: false,

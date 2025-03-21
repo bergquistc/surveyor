@@ -66,7 +66,6 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 		if (response.ok) {
 			const data = await response.json()
 			const item = data.Item
-
 			setIsFetching(false)
 			onSubmit(item)
 			onClose()
