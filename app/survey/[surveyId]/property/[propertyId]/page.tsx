@@ -8,8 +8,10 @@ import { TProperty, TSurvey } from "@/types"
 import variables from "@/variables"
 
 export default async function Page({ params }: { params: { surveyId: string; propertyId: string } }) {
-	const surveyId = params.surveyId
-	const propertyId = params.propertyId
+	const param = await params
+
+	const surveyId = param.surveyId
+	const propertyId = param.propertyId
 
 	const surveyGetUrl = `${variables.DOMAIN}/survey?surveyId=${surveyId}`
 	const survey: TSurvey = await fetch(surveyGetUrl).then((response) => response.json())
