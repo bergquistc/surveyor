@@ -4,13 +4,14 @@ import React, { useState } from "react"
 import CreateSurveyModal from "../utility/CreateSurveyModal"
 import SurveyCard from "./SurveyCard"
 import { TSurvey } from "@/types"
+import { useRouter } from "next/navigation"
 
 function SurveysHomepage({ surveys }: { surveys: TSurvey[] }) {
+	const router = useRouter()
 	// Refs
 
 	// State
 	const [isNewSurveyOpen, setIsNewSurveyOpen] = useState(false)
-	const [surveysList, setSurveysList] = useState<TSurvey[]>(surveys)
 
 	// Effects
 
@@ -69,7 +70,7 @@ function SurveysHomepage({ surveys }: { surveys: TSurvey[] }) {
 				<div className="flex flex-col h-full w-1/2 bg-cresa-midnight overflow-none">
 					{header}
 					<div className="h-full p-8 pb-0 overflow-y-auto">
-						{surveysList.map((survey: TSurvey, index: number) => (
+						{surveys.map((survey: TSurvey, index: number) => (
 							<React.Fragment key={index}>
 								<SurveyCard survey={survey} />
 							</React.Fragment>
@@ -80,8 +81,8 @@ function SurveysHomepage({ surveys }: { surveys: TSurvey[] }) {
 
 			{isNewSurveyOpen && (
 				<CreateSurveyModal
-					onSubmit={(_survey) => {
-						setSurveysList((prev: TSurvey[]) => [_survey, ...prev])
+					onSubmit={() => {
+						router.refresh()
 					}}
 					onClose={() => setIsNewSurveyOpen(false)}
 				/>

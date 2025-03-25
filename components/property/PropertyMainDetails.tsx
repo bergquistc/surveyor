@@ -49,10 +49,8 @@ export default function PropertyMainDetails({ survey, property }: { survey: TSur
 		router.push(`/survey/${survey.surveyId}`)
 	}, [survey, router])
 
-	interface FileSelectedEvent extends React.ChangeEvent<HTMLInputElement> {}
-
-	const fileSelected = async (event: FileSelectedEvent) => {
-		const file = event.target.files?.[0]
+	const fileSelected = async (event: React.ChangeEvent) => {
+		const file = (event.target as HTMLInputElement).files?.[0]
 		if (!file || !property) {
 			return
 		}

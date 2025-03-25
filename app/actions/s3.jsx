@@ -3,6 +3,8 @@
 import sharp from "sharp"
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3"
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { revalidatePath } from "next/cache"
+import { v4 as uuidv4 } from "uuid"
 
 const bucketName = process.env.BUCKET_NAME
 const bucketRegion = process.env.BUCKET_REGION
@@ -18,6 +20,42 @@ const s3 = new S3Client({
 })
 
 // FormData
+export async function getSurveys() {
+	const surveys = await fetch(`${process.env.DOMAIN}/surveys`)
+		.then((response) => response.json())
+		.then((data) => {
+			return data.Items
+		})
+
+	return surveys
+}
+export async function createSurvey(payload) {
+	revalidatePath("/")
+
+	const response = await fetch(`${process.env.DOMAIN}/survey`, {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify({
+			surveyId: uuidv4(),
+			date: Date.now(),
+			creator: "Connor Bergquist",
+			surveyName: payload.surveyName,
+			surveyType: payload.surveyType,
+			state: payload.state,
+			city: payload.city,
+			client: payload.client,
+			projectType: payload.projectType,
+			templateType: payload.templateType
+		})
+	})
+
+	const data = await response.json()
+	const item = data.Item
+
+	return item
+}
 export async function getProperties(surveyId) {
 	const properties = await fetch(`${process.env.DOMAIN}/properties?surveyId=${surveyId}`)
 		.then((response) => response.json())

@@ -3,12 +3,11 @@
 import { TSurvey } from "@/types"
 
 import React from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useCallback } from "react"
 
 function SurveyCard({ survey }: { survey: TSurvey }) {
 	const router = useRouter()
-	const searchParams = useSearchParams()
 
 	// Refs
 

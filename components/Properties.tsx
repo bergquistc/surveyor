@@ -79,8 +79,8 @@ export default function Properties({ survey, properties }: { survey: TSurvey; pr
 			const keys = Object.keys(property as object)
 			for (const key of keys) {
 				const normalizedKey = key.replace(/ /g, "_")
-				/* eslint-disable-next-line */
-				normalizedProperty[normalizedKey] = (property as { [key: string]: any })[key]
+				/* @ts-expect-error the type doesnt have a key */
+				normalizedProperty[normalizedKey] = property[key]
 			}
 
 			return normalizedProperty

@@ -1,10 +1,9 @@
 "use client"
 
 import { TSurvey } from "@/types"
-import variables from "@/variables"
-import React, { ReactNode, useCallback, useEffect, useMemo, useState, useTransition } from "react"
-import { v4 as uuidv4 } from "uuid"
-import { useRouter, useSearchParams } from "next/navigation"
+import React, { ReactNode, useCallback, useMemo, useState } from "react"
+import { useRouter } from "next/navigation"
+import { createSurvey } from "@/app/actions/s3"
 
 const initialSurvey = {
 	surveyName: "",
@@ -19,15 +18,11 @@ const initialSurvey = {
 
 function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) => void; onClose: () => void }) {
 	const router = useRouter()
-	const searchParams = useSearchParams()
 	// Refs
 
 	// State
 	const [newSurvey, setNewSurvey] = useState(initialSurvey)
-	const [isPending, startTransition] = useTransition()
 	const [isFetching, setIsFetching] = useState(false)
-
-	const isMutating = isFetching || isPending
 
 	// Effects
 	const canSubmit = useMemo(() => {
@@ -44,30 +39,12 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 			return
 		}
 		setIsFetching(true)
-		const response = await fetch(`${variables.DOMAIN}/survey`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify({
-				surveyId: uuidv4(),
-				date: Date.now(),
-				creator: "Connor Bergquist",
-				surveyName: newSurvey.surveyName,
-				surveyType: newSurvey.surveyType,
-				state: newSurvey.state,
-				city: newSurvey.city,
-				client: newSurvey.client,
-				projectType: newSurvey.projectType,
-				templateType: newSurvey.templateType
-			})
-		})
 
-		if (response.ok) {
-			const data = await response.json()
-			const item = data.Item
+		const _survey = await createSurvey(newSurvey)
+
+		if (_survey) {
 			setIsFetching(false)
-			onSubmit(item)
+			onSubmit(_survey)
 			onClose()
 		}
 	}, [newSurvey, canSubmit, onSubmit, router])
@@ -230,7 +207,7 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 							onClick={handleClose}
 							type="submit"
 							className="bg-red-700 text-white p-1 cursor-pointer"
-							disabled={isPending}
+							disabled={isFetching}
 						>
 							Close
 						</button>
@@ -238,7 +215,7 @@ function CreateSurveyModal({ onSubmit, onClose }: { onSubmit: (survey: TSurvey) 
 							onClick={handleSubmit}
 							type="submit"
 							className="bg-cresa-midnight text-white p-1 cursor-pointer"
-							disabled={!canSubmit || isPending}
+							disabled={!canSubmit || isFetching}
 						>
 							Submit
 						</button>

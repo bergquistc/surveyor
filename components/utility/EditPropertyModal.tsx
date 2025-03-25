@@ -21,15 +21,12 @@ function EditPropertyModal({
 	// State
 	const [newProperty, setNewProperty] = useState(property)
 	const [isPending, startTransition] = useTransition()
-	const [isFetching, setIsFetching] = useState(false)
-
-	const isMutating = isFetching || isPending
 
 	// Effects
 	const handleSubmit = useCallback(async () => {
 		const updates = []
 		for (const [key, value] of Object.entries(newProperty)) {
-			// @ts-ignore
+			// @ts-expect-error dude just let me go please
 			if (property[key] !== value) {
 				updates.push(
 					fetch(`${variables.DOMAIN}/property`, {
@@ -43,7 +40,7 @@ function EditPropertyModal({
 			}
 		}
 
-		Promise.all(updates).then((responses) => {
+		Promise.all(updates).then(() => {
 			startTransition(() => {
 				// Refresh the current route and fetch new data from the server without
 				// losing client-side browser or React state.

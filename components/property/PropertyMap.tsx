@@ -1,9 +1,10 @@
 "use client"
 
 import useMapControl from "@/hooks/useMapControl"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef } from "react"
 import mapboxgl from "mapbox-gl"
 import MapboxDraw from "@mapbox/mapbox-gl-draw"
+// @ts-expect-error there is no types declaration
 import { stringify, parse } from "wkt"
 import { TProperty } from "@/types"
 import variables from "@/variables"
@@ -32,11 +33,14 @@ function PropertyMap({ property }: { property: TProperty }) {
 			const data = draw.getAll()
 
 			if (data.features.length > 0) {
+				let coords: [number, number] = [0, 0]
 				const point = data.features[0]
-				const coords = point.geometry.coordinates
+				if (point.geometry.type === "Point") {
+					coords = point.geometry.coordinates as [number, number]
 
-				if (map) {
-					marker.setLngLat(coords).addTo(map)
+					if (map) {
+						marker.setLngLat(coords as [number, number]).addTo(map)
+					}
 				}
 
 				const wkt = stringify(point.geometry)
@@ -49,7 +53,7 @@ function PropertyMap({ property }: { property: TProperty }) {
 				})
 
 				if (marker) {
-					marker.setLngLat(coords)
+					marker.setLngLat(coords as [number, number])
 				}
 				draw.deleteAll()
 			}
@@ -87,7 +91,7 @@ function PropertyMap({ property }: { property: TProperty }) {
 		map.addControl(_draw, "top-right")
 
 		// Attach handler
-		map.on("draw.create", (e) => handleDraw(_draw, _marker))
+		map.on("draw.create", () => handleDraw(_draw, _marker))
 	}, [map])
 
 	// Functions

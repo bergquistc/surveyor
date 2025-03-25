@@ -7,11 +7,10 @@ import { getProperty } from "@/app/actions/s3"
 import { TProperty, TSurvey } from "@/types"
 import variables from "@/variables"
 
-export default async function Page({ params }: { params: { surveyId: string; propertyId: string } }) {
-	const param = await params
+type Params = Promise<{ surveyId: string; propertyId: string }>
 
-	const surveyId = param.surveyId
-	const propertyId = param.propertyId
+export default async function Page({ params }: { params: Params }) {
+	const { surveyId, propertyId } = await params
 
 	const surveyGetUrl = `${variables.DOMAIN}/survey?surveyId=${surveyId}`
 	const survey: TSurvey = await fetch(surveyGetUrl).then((response) => response.json())
